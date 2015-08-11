@@ -1,0 +1,9 @@
+.DS_Store
+build/
+.swn
+.swo
+.swp
+.swm
+.orig
+node_modules/
+.idea

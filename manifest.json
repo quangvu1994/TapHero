@@ -1,0 +1,51 @@
+{
+  "addons": {
+    "facebook": {},
+    "weeby": {}
+  },
+  "android": {
+    "icons": {
+      "36": "resources/icons/android36.png",
+      "48": "resources/icons/android48.png",
+      "72": "resources/icons/android72.png",
+      "96": "resources/icons/android96.png"
+    },
+    "versionCode": 1
+  },
+  "appID": "974a4e8e466c491fb591b54504abdd8a",
+  "dependencies": {
+    "devkit-core": "git@github.com:gameclosure/devkit-core.git#5ac59cb0e91ce5aa946bf871acbe3839f6560673",
+    "devkit-scene": "git@github.com:gameclosure/devkit-scene.git#61f23fe3c950f1a9fa1e3455c13d7f4640f34d34"
+  },
+  "description": "",
+  "disableNativeViews": false,
+  "icon": "resources/icons/icon512.png",
+  "ios": {
+    "appleID": "12345678",
+    "bundleID": "co.weeby.producer.quangvu.TapHero",
+    "icons": {
+      "114": "resources/icons/ios114.png",
+      "144": "resources/icons/ios144.png",
+      "57": "resources/icons/ios57.png",
+      "72": "resources/icons/ios72.png",
+      "renderGloss": true
+    },
+    "version": "1.0.0"
+  },
+  "sdkVersion": "release-0.1.46",
+  "shortName": "TapHero",
+  "splash": {
+    "autoHide": true,
+    "universal": "resources/images/game/background.png"
+  },
+  "studio": {
+    "domain": "weeby.co",
+    "name": "Weeby.co",
+    "stagingDomain": "staging.example.com"
+  },
+  "supportedOrientations": [
+    "portrait"
+  ],
+  "title": "TapHero",
+  "version": "1.0.0"
+}
