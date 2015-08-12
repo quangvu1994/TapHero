@@ -1,6 +1,7 @@
 import scene.ui.ButtonView as ButtonView;
 import scene.ui.ProgressBar as ProgressBar;
-import ui.View as View;
+import ui.View as View
+import ui.ImageView as ImageView;
 
 
 exports = {
@@ -23,7 +24,7 @@ exports = {
       width: w,
       height: h,
       image: png,
-      fillImage: fImage
+      fillImage: fImage,
     });
     return b;
   },
@@ -35,6 +36,7 @@ exports = {
       width: scene.screen.width,
       height: h,
       backgroundColor: '#FFFFFF',
+      image: 'resources/images/BA_BG.png',
       zIndex: 1
     });
     return v;

@@ -2,9 +2,7 @@ import scene;
 import effects;
 import communityart;
 import .gameUI;
-
-
-var PARALLAX_THEME = 'flappybee/parallax/forest';
+import .Calculation;
 
 scene.setTextColor("#FFFFFF");
 
@@ -17,10 +15,13 @@ exports = scene(function() {
     width: 350,
     height: 500
   });
+  // Stage and level
+  var stage = 1;
+  var miniStage = 0;
+  // Monster variables
   var monsterGold = 10;
-  var monsterHealth = 4
-  var hpDifference = 4;
-  var bossHealth = monsterHealth * hpDifference;
+  var monsterHealth = Calculation.monsterHP(stage);
+  var bossHealth = Calculation.bossHP(stage, monsterHealth);
   var bossGold = 100;
 
   var heroLevel = 1;
@@ -32,7 +33,7 @@ exports = scene(function() {
   var target;
   var ttsSkillAmount = 200;
   var extraEffect = scene.addText(' ');
-  var miniStage = 1;
+
   // Small Dragon Hero
   var dragLevel = 0;
   var dragExist = false;
@@ -46,7 +47,7 @@ function playerDPS(heroLevel){
   return dmg;
 };
   // level up button
-  var levelUpButton = gameUI.setUp(10, 10, 200, 150, 'resources/images/lvluparrow.png');
+  var levelUpButton = gameUI.setUp(10, 10, 100, 100, 'resources/images/lvluparrow.png');
 
   // special skill button
   var toTheSky = gameUI.setUp(10, 250, 100, 100, 'resources/images/nukeee.png');
@@ -55,7 +56,7 @@ function playerDPS(heroLevel){
   // Hero tab button
   var heroTab = gameUI.setUp(250, 900, 100, 100, 'resources/images/heroTabButton.png');
   // MonsterHP bar
-  var hpBar = gameUI.progressB(220, 10, 10, 10, 'resources/images/bar_honey_empty.png', 'resources/images/bar_honey_full.png' )
+  var hpBar = gameUI.progressB(220, 60, 50, 10, 'resources/images/bar_honey_empty.png', 'resources/images/bar_honey_full.png' )
 
   // Display the hero's info tab
   var count = 0;
@@ -87,11 +88,7 @@ function playerDPS(heroLevel){
         scene.addInterval(function(){
           target.hurt(dragDamage)
           displayHealth.destroy();
-          displayHealth = scene.addText(target.health.toFixed(1) + '/' + monsterHealth.toFixed(1), {
-            x: 130,
-            y: 50,
-            size: 30
-            });
+          displayHealth = displayText2(target.health.toFixed(1), monsterHealth, 130, 80);
           hpBar.setValue(target.health/monsterHealth, 100);
         }, 3000)
       }
@@ -170,7 +167,7 @@ function playerDPS(heroLevel){
         levelGold += levelGold*50/100;
         // display new level gold
         nextLevelGold.destroy();
-        nextLevelGold = displayText(levelGold, ' gold', -100, 150, 30);
+        nextLevelGold = displayText(levelGold, ' gold', -100, 100, 30);
         effects.explode(hero);
       }else{
         var notEnough = scene.addText('Not Enough Gold', {
@@ -186,26 +183,29 @@ function playerDPS(heroLevel){
 
   // Initialize first monster
   target = createMonster(monsterImages[index], monsterHealth);
-
   // Display text info:
   // Hero damage, level gold, total gold, etc
 var damageText = displayText(heroTapDamage, ' Tap Damage', -50, scene.screen.height - 100, 30);
 var totalGold = displayText(heroBank, ' gold', scene.screen.width - 250, scene.screen.height - 100, 30);
-var nextLevelGold = displayText(levelGold, ' gold', -100, 150, 30);
+var nextLevelGold = displayText(levelGold, ' gold', -100, 100, 30);
 var ttsSkillGold = displayText(ttsSkillAmount, ' gold', -100, 350, 30);
 var dragonCostText = displayText(dragGold, ' gold', -100, 550, 30);
 function displayText (num, string, posX, posY, sizeNum){
+  // Handling scientific notation in progress
   if(num >= 1000){
+    // Additing Text can be a function -> reduce the dry code
     var myText = scene.addText((num/1000).toFixed(1) + ' K' + string, {
     x: posX,
     y: posY,
-    size: sizeNum
+    size: sizeNum,
+    zIndex : 1
     });
   }else{
     var myText = scene.addText(num.toFixed(1) + string, {
     x: posX,
     y: posY,
-    size: sizeNum
+    size: sizeNum,
+    zIndex: 1
     });
   }
   return myText;
@@ -220,13 +220,15 @@ function displayText (num, string, posX, posY, sizeNum){
 
 //Display the monster current health and total health
 var displayHealth;
-function displayMonsterHealth(currentHP, totalHP){
-  displayHealth = scene.addText(currentHP.toFixed(1) + '/' + totalHP.toFixed(1), {
-    x: 130,
-    y: 50,
+var stageInfo = displayText2(miniStage, 10, 300, 35);
+
+function displayText2(leftVal, rightVal, posX, posY){
+  var h = scene.addText(leftVal+ '/' + rightVal, {
+    x: posX,
+    y: posY,
     size: 30
   });
-  return displayHealth;
+  return h;
 }
 
 function createMonster(monsterImage, mHealth){
@@ -238,12 +240,13 @@ function createMonster(monsterImage, mHealth){
     height: 300,
     health: mHealth
   });
-
-  displayHealth = displayMonsterHealth(monster.health, mHealth);
+  displayHealth = displayText2(monster.health.toFixed(1), mHealth, 130, 80);
 
     hpBar.setValue(1, 100);
+    // Monster/Boss is being killed
     monster.onDestroy(function(){
       displayHealth.destroy();
+      stageInfo.destroy();
       var startY = 450;
       index++;
       if(miniStage <= 9){
@@ -254,21 +257,22 @@ function createMonster(monsterImage, mHealth){
           size: 40
         });
       }else{
-        miniStage = 1;
+        stage += 1;
+        miniStage = 0;
         var goldReceived = scene.addText('+ ' + bossGold.toFixed(1) + ' gold', {
           x: 300,
           y: startY,
           size: 40
         });
-        monsterHealth += monsterHealth*1.5;
+        monsterHealth = Calculation.monsterHP(stage);
         monsterGold += 10;
-        hpDifference +=1;
-        bossHealth = monsterHealth*hpDifference
+        bossHealth = Calculation.bossHP(stage, monsterHealth);
         bossGold = monsterGold*10;
       }
       if(index >= monsterImages.length){
         index = 0;
       };
+      stageInfo = displayText2(miniStage, 10, 300, 35);
       heroBank += monsterGold;
       // Animate Gold Received
       scene.animate(goldReceived, 'opacity')
@@ -277,6 +281,7 @@ function createMonster(monsterImage, mHealth){
       // Display total gold left
       totalGold.destroy();
       totalGold = displayText(heroBank, ' gold', scene.screen.width - 250, scene.screen.height - 100, 30);
+
       if(miniStage <= 9){
         target = createMonster(monsterImages[index], monsterHealth);
       }else{
@@ -314,10 +319,10 @@ function displayTapDamage(damage){
       displayTapDamage(heroTapDamage*5);
       displayHealth.destroy();
       if(miniStage <= 9){
-        displayHealth = displayMonsterHealth(target.health, monsterHealth);
+        displayHealth = displayText2(target.health.toFixed(1), monsterHealth, 130, 80);
         hpBar.setValue(target.health/monsterHealth, 100);
       }else{
-        displayHealth = displayMonsterHealth(target.health, bossHealth);
+        displayHealth = displayText2(target.health.toFixed(1), bossHealth, 130, 80);
         hpBar.setValue(target.health/bossHealth, 100);
       }
     }else{
@@ -325,10 +330,10 @@ function displayTapDamage(damage){
       displayTapDamage(heroTapDamage);
       displayHealth.destroy();
       if(miniStage <= 9){
-        displayHealth = displayMonsterHealth(target.health, monsterHealth);
+        displayHealth = displayText2(target.health.toFixed(1), monsterHealth, 130, 80);
         hpBar.setValue(target.health/monsterHealth, 100);
       }else{
-        displayHealth = displayMonsterHealth(target.health, bossHealth);
+        displayHealth = displayText2(target.health.toFixed(1), bossHealth, 130, 80);
         hpBar.setValue(target.health/bossHealth, 100);
       }
     }
