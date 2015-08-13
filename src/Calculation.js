@@ -11,5 +11,15 @@ exports = {
     var index = (stage-1)%5;
     var hp = mobHP*difficulty[index];
     return Math.round(hp);
+  },
+  monsterGold: function(mobHP, stage){
+    var gold = mobHP*(0.02 + (0.00045 * Math.min(stage, 150)))
+    return Math.round(gold);
+  },
+  bossGold: function(mobGold, stage){
+    var difficulty = [2,4,6,7,10];
+    var index = (stage-1)%5;
+    var gold = mobGold*difficulty[index];
+    return gold;
   }
 }
