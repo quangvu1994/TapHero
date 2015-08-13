@@ -28,9 +28,11 @@ exports = scene(function() {
   var monsterGold = Calculation.monsterGold(monsterHealth,stage);
   var bossGold = Calculation.bossGold(monsterGold, stage);
 
+  // Hero variables
   var heroLevel = 10;
   var heroBank = 0;
   var levelGold = 5;
+  var critMulti = 10;
 
   var index = 0;
   var copyIndex;
@@ -401,8 +403,9 @@ exports = scene(function() {
         .now({opacity: 1}, 300)
         .then({opacity: 0}, 1000);
       // five times the damage
-      target.hurt(heroTapDamage*5);
-      displayTapDamage(heroTapDamage*5);
+      var dmgTaken = Calculation.criticalMultiplier(heroTapDamage, critMulti);
+      target.hurt(dmgTaken);
+      displayTapDamage(dmgTaken);
       displayHealth.destroy();
       if(!bossTime){
         displayHealth = displayText2(target.health.toFixed(1), monsterHealth, 130, 80, 'HP');

@@ -14,12 +14,17 @@ exports = {
   },
   monsterGold: function(mobHP, stage){
     var gold = mobHP*(0.02 + (0.00045 * Math.min(stage, 150)))
-    return Math.round(gold);
+    return Math.round(gold)*4;
   },
   bossGold: function(mobGold, stage){
     var difficulty = [2,4,6,7,10];
     var index = (stage-1)%5;
     var gold = mobGold*difficulty[index];
-    return gold;
+    return gold*4;
+  },
+  criticalMultiplier: function(tapDmg, CritMultiplier){
+    var ranNum = Math.random()*(1.1 - 0.3) + 0.3;
+    var critDmg = tapDmg*CritMultiplier*ranNum;
+    return critDmg;
   }
 }
