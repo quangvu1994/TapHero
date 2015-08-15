@@ -54,52 +54,54 @@ exports = scene(function() {
     return dmg;
   };
   // level up button
-  var levelUpButton = gameUI.setUp(10, 10, 100, 100, 'resources/images/lvluparrow.png');
+  var levelUpButton = gameUI.setUp(10, 10, 100, 100, 'resources/images/lvluparrow.png', scene.ui);
   // special skill button
-  var toTheSky = gameUI.setUp(10, 250, 100, 100, 'resources/images/nukeee.png');
+  var toTheSky = gameUI.setUp(10, 250, 100, 100, 'resources/images/nukeee.png', scene.ui);
   // Drag hero
-  var dragButton = gameUI.setUp(10, 450, 100, 100, 'resources/images/littleDragon.png');
+  var dragButton = gameUI.setUp(10, 450, 100, 100, 'resources/images/littleDragon.png', scrollView);
   // Hero tab button
-  var heroTab = gameUI.setUp(250, 900, 100, 100, 'resources/images/heroTabButton.png');
+  var heroTab = gameUI.setUp(250, 900, 100, 100, 'resources/images/heroTabButton.png', scene.ui);
   // MonsterHP bar
   var hpBar = gameUI.progressB(220, 60, 50, 10, 'resources/images/bar_honey_empty.png', 'resources/images/bar_honey_full.png' )
   // Leave boss button
-  var leaveBoss = gameUI.setUp(420, 30, 100, 100, 'resources/images/heroTabButton.png');
+  var leaveBoss = gameUI.setUp(420, 30, 100, 100, 'resources/images/heroTabButton.png', scene.ui);
+  // Scroll down view
+  var scrollView = gameUI.tabView();
+  scene.animate(scrollView)
+    .now({x: 1000}, 1)
 
   // Display the leave and fight boss button
   leaveBoss.registerListener('onDown', function(){
     normal = false;
     scene.animate(leaveBoss)
-      .then({opacity: 0, zIndex: 0}, 10)
+      .then({x: 1000}, 1)
     left = true;
     target.destroy();
   })
   scene.animate(leaveBoss)
-    .now({opacity: 0, zIndex: 0}, 1);
+    .now({x: 1000}, 1);
 
-  var fightBoss = gameUI.setUp(420, 30, 100, 100, 'resources/images/heroTabButton.png');
+  var fightBoss = gameUI.setUp(420, 30, 100, 100, 'resources/images/heroTabButton.png', scene.ui);
   fightBoss.registerListener('onDown', function(){
     scene.animate(fightBoss)
-      .then({opacity: 0, zIndex: 0}, 10)
+      .then({x: 1000}, 1)
     left = false;
     target.destroy();
   });
   scene.animate(fightBoss)
-    .now({opacity: 0, zIndex: 0}, 1);
+    .now({x: 1000}, 1);
 
   // Display the hero's info tab
-  var count = 0;
-  var tabView = gameUI.tabView(0);
+  var clicked = true;
   heroTab.registerListener('onDown', function(){
-    if(count == 0){
-      count +=1;
-      tabView = gameUI.tabView(150);
-      scene.animate(tabView)
-        .then({opacity: 1}, 100)
+    if(clicked){
+      scene.animate(scrollView)
+        .now({x: 0}, 1)
+      clicked = false;
     }else{
-      count = 0;
-      scene.animate(tabView)
-        .then({opacity: 0}, 100)
+      scene.animate(scrollView)
+        .now({x: 1000}, 1)
+      clicked = true;
     }
   })
 
@@ -319,7 +321,7 @@ exports = scene(function() {
               size: 40
             });
             scene.animate(leaveBoss)
-              .then({opacity: 0}, 10);
+              .then({x: 1000}, 1);
             monsterHealth = Calculation.monsterHP(stage);
             monsterGold = Calculation.monsterGold(monsterHealth, stage);
             bossHealth = Calculation.bossHP(stage, monsterHealth);
@@ -345,8 +347,7 @@ exports = scene(function() {
             stageInfo.destroy();
             //displayFightLeaveButton(true);
             scene.animate(leaveBoss)
-              .now({opacity: 0}, 1)
-              .then({opacity: 1, zIndex: 1}, 1);
+              .then({x: 420}, 1);
             copyIndex = index;
             bossTime = true;
             target = createMonster(monsterImages[index], bossHealth);
@@ -360,14 +361,12 @@ exports = scene(function() {
               index = 0;
             }
             scene.animate(fightBoss)
-              .now({opacity: 0}, 1)
-              .then({opacity: 1, zIndex: 1}, 1);
+              .then({x: 420}, 1);
             target = createMonster(monsterImages[index], monsterHealth);
           }else{
             bossTime = true;
             scene.animate(leaveBoss)
-              .now({opacity: 0}, 1)
-              .then({opacity: 1, zIndex: 1}, 1);
+              .then({x: 420}, 1);
             target = createMonster(monsterImages[copyIndex], bossHealth);
             normal = true;
           }
