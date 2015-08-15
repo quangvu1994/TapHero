@@ -15,7 +15,7 @@
   "appID": "974a4e8e466c491fb591b54504abdd8a",
   "dependencies": {
     "devkit-core": "git@github.com:gameclosure/devkit-core.git#v3.0.1",
-    "devkit-scene": "git@github.com:gameclosure/devkit-scene.git#a26c04b6250e0b38f14b1f44f71cf8270c140afe"
+    "devkit-scene": "git@github.com:gameclosure/devkit-scene.master#"
   },
   "description": "",
   "disableNativeViews": false,
