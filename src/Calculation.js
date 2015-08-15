@@ -26,5 +26,10 @@ exports = {
     var ranNum = Math.random()*(1.1 - 0.3) + 0.3;
     var critDmg = tapDmg*CritMultiplier*ranNum;
     return critDmg;
+  },
+
+  playerDPS: function(heroLevel){
+    var dmg = heroLevel*Math.pow(1.05,heroLevel);
+    return dmg;
   }
 }
