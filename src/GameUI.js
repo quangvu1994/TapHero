@@ -33,21 +33,21 @@ exports = {
   },
   tabView: function(){
       var scrollView = new ScrollView({
-      superview: scene.ui,
-      x: 0,
-      y: 750,
-      bounce: false,
-      width: scene.screen.width,
-      height: 200,
-      scrollX: false,
-      scrollBounds: {
-        minX: 0,
-        maxX:backgroundImage.getWidth(),
-        minY: 0,
-        maxY: backgroundImage.getHeight()
-      }
+        superview: scene.ui,
+        x: 0,
+        y: 750,
+        bounce: false,
+        width: scene.screen.width,
+        height: 200,
+        scrollX: false,
+        scrollBounds: {
+          minX: 0,
+          maxX:backgroundImage.getWidth(),
+          minY: 0,
+          maxY: backgroundImage.getHeight()
+        }
     });
-      imageView = new ImageView({
+      var imageView = new ImageView({
         superview: scrollView,
         image: backgroundImage,
         width: backgroundImage.getWidth(),

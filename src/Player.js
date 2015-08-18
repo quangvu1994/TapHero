@@ -33,8 +33,6 @@ exports = {
     this.bossHealth = Calculation.bossHP(stage, this.monsterHealth);
     this.bossGold = Calculation.bossGold(this.monsterGold, stage);
     this.monsterImages = ['resources/images/monster.png', 'resources/images/boss_fly.png', 'resources/images/char_hero.png'];
-    this.index = 0;
-    this.copyIndex;
     this.bossTime = false;
     this.target;
     this.displayHealth;

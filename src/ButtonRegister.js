@@ -4,17 +4,20 @@ import .Calculation;
 import .DisplayText;
 
 exports = {
-  registerMenu: function(button, bool, scrollViewType){
-    var clicked = bool;
+  registerMenu: function(button, scrollViewType, rmView1){
+    scrollViewType.visible = false;
     button.registerListener('onDown', function(){
-      if(clicked){
+      if(!scrollViewType.visible){
         scene.animate(scrollViewType)
           .now({x: 0}, 1)
-        clicked = false;
+        scene.animate(rmView1)
+          .now({x: 1000}, 1)
+        rmView1.visible = false;
+        scrollViewType.visible = true;
       }else{
         scene.animate(scrollViewType)
           .now({x: 1000}, 1)
-        clicked = true;
+        scrollViewType.visible = false;
       }
     });
   },

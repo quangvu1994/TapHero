@@ -11,7 +11,6 @@ import .ButtonRegister;
 scene.setTextColor("#FFFFFF");
 
 exports = scene(function() {
-
   //Add background and others views
   var background = scene.addBackground ({url: 'resources/images/BA_BG.png'});
   var platform = scene.addActor({url: 'resources/images/platform.png'}, {
@@ -23,39 +22,42 @@ exports = scene(function() {
   var heroScrollView = GameUI.tabView();
   scene.animate(heroScrollView)
     .now({x: 1000}, 1);
+
   var playerScrollView = GameUI.tabView();
   scene.animate(playerScrollView)
     .now({x: 1000}, 1);
   var extraEffect = scene.addText(' ');
 
-  // Stage and level
+  // Stage info
   var stage = 1;
   var miniStage = 0;
   var normal = true;
   var left;
+  var stageDisplay = DisplayText.numSlashNum(miniStage, 10, 300, 35, '');
 
   // Monster
   var neutralMonster = new Player.monsterBuilder(stage);
   // Player
   var player = new Player.playerBuilder(playerScrollView);
   //Heroes
-  var dragon = new HeroSetUp.heroBuild(1, 1, 10, 50, false);
+  var dragon = new HeroSetUp.heroBuild(1, 1, 10, 50, false, heroScrollView);
   // Heroes buttons
   var dragButton = GameUI.setUp(10, 10, 100, 100, 'resources/images/littleDragon.png', heroScrollView);
-
   // Buttons
   var heroTab = GameUI.setUp(120, 930, 150, 100, 'resources/images/heroTabButton.png', scene.ui);
   var playerTab = GameUI.setUp(-10, 930, 150, 100, 'resources/images/heroTabButton.png', scene.ui);
-  ButtonRegister.registerMenu(heroTab, false, heroScrollView);
-  ButtonRegister.registerMenu(playerTab, false, playerScrollView);
-
   var levelUpButton = GameUI.setUp(10, 100, 50, 50, 'resources/images/lvluparrow.png', playerScrollView);
-  ButtonRegister.registerLevelUp(levelUpButton, player, playerScrollView);
-
   var nuke = GameUI.setUp(10, 180, 50, 50, 'resources/images/nukeee.png', playerScrollView);
+  var leaveBoss = GameUI.setUp(420, 30, 100, 100, 'resources/images/heroTabButton.png', scene.ui);
+  var fightBoss = GameUI.setUp(420, 30, 100, 100, 'resources/images/heroTabButton.png', scene.ui);
+  ButtonRegister.registerMenu(heroTab, heroScrollView, playerScrollView);
+  ButtonRegister.registerMenu(playerTab, playerScrollView, heroScrollView);
+  ButtonRegister.registerLevelUp(levelUpButton, player, playerScrollView);
   ButtonRegister.registerNukeSkill(nuke, player, neutralMonster, playerScrollView);
 
-  var leaveBoss = GameUI.setUp(420, 30, 100, 100, 'resources/images/heroTabButton.png', scene.ui);
+  // Setting up heroes
+  HeroSetUp.heroRegister(dragButton, dragon, player, neutralMonster);
+
   // Display the leave and fight boss button
   leaveBoss.registerListener('onDown', function(){
     normal = false;
@@ -67,7 +69,6 @@ exports = scene(function() {
   scene.animate(leaveBoss)
     .now({x: 1000}, 1);
 
-  var fightBoss = GameUI.setUp(420, 30, 100, 100, 'resources/images/heroTabButton.png', scene.ui);
   fightBoss.registerListener('onDown', function(){
     scene.animate(fightBoss)
       .then({x: 1000}, 1)
@@ -77,33 +78,28 @@ exports = scene(function() {
   scene.animate(fightBoss)
     .now({x: 1000}, 1);
 
-  neutralMonster.target = createMonster(neutralMonster, neutralMonster.monsterHealth);
-  // Calling a dragon to help the hero
-  HeroSetUp.heroRegister(dragButton, dragon, player, neutralMonster);
+  var mobIndex = 0;
+  var bossIndex = 0;
+  neutralMonster.target = createMonster(neutralMonster, neutralMonster.monsterHealth, mobIndex);
+  function createMonster(monster, mHealth, index){
+      var myActor = scene.addActor({url: monster.monsterImages[index]}, {
+        x: 150,
+        y: 400,
+        width: 300,
+        height: 300,
+        health: mHealth
+      });
 
-  //Display text in format "String/String"
-  var stageInfo = DisplayText.numSlashNum(miniStage, 10, 300, 35, '');
-
-  // Deal tons of damage if player have enough gold
-
-  function createMonster(monster, mHealth){
-    var myActor = scene.addActor({url: monster.monsterImages[monster.index]}, {
-      x: 150,
-      y: 400,
-      width: 300,
-      height: 300,
-      health: mHealth
-    });
     monster.displayHealth = DisplayText.numSlashNum(myActor.health.toFixed(1), mHealth, 130, 80, 'HP');
     monster.hpBar.setValue(1, 100);
     // Monster/Boss is being killed
     myActor.onDestroy(function(){
       if(normal){
         monster.displayHealth.destroy();
-        stageInfo.destroy();
+        stageDisplay.destroy();
         var startX = 300;
         var startY = 450;
-        monster.index++;
+        mobIndex++;
         if(miniStage <= 9){
           miniStage += 1;
           var goldReceived = scene.addText('+ ' + monster.monsterGold.toFixed(1) + ' gold', {
@@ -127,10 +123,10 @@ exports = scene(function() {
           monster.bossGold = Calculation.bossGold(monster.monsterGold,stage);
           monster.bossTime = false;
         }
-        if(monster.index == monster.monsterImages.length){
-          monster.index = 0;
+        if(mobIndex == monster.monsterImages.length){
+          mobIndex = 0;
         };
-        stageInfo = DisplayText.numSlashNum(miniStage, 10, 300, 35, '');
+        stageDisplay = DisplayText.numSlashNum(miniStage, 10, 300, 35, '');
         player.playerBank += monster.monsterGold;
         // Animate Gold Received
         scene.animate(goldReceived, 'opacity')
@@ -141,32 +137,32 @@ exports = scene(function() {
         player.totalGold = DisplayText.display(player.playerBank, ' gold', 320, 0, 25, playerScrollView);
 
         if(miniStage <= 9){
-          monster.target = createMonster(monster, monster.monsterHealth);
+          monster.target = createMonster(monster, monster.monsterHealth, mobIndex);
         }else{
-          stageInfo.destroy();
+          stageDisplay.destroy();
           //displayFightLeaveButton(true);
           scene.animate(leaveBoss)
             .then({x: 420}, 1);
-          monster.copyIndex = monster.index;
+          bossIndex = mobIndex;
           monster.bossTime = true;
-          monster.target = createMonster(monster, monster.bossHealth);
+          monster.target = createMonster(monster, monster.bossHealth, bossIndex);
         }
       }else{
         monster.displayHealth.destroy();
         if(left){
           monster.bossTime = false;
-          monster.index++;
-          if(monster.index >= monster.monsterImages.length){
-            monster.index = 0;
+          mobIndex++;
+          if(mobIndex >= monster.monsterImages.length){
+            mobIndex = 0;
           }
           scene.animate(fightBoss)
             .then({x: 420}, 1);
-          monster.target = createMonster(monster, monster.monsterHealth);
+          monster.target = createMonster(monster, monster.monsterHealth, mobIndex);
         }else{
           monster.bossTime = true;
           scene.animate(leaveBoss)
             .then({x: 420}, 1);
-          monster.target = createMonster(monster, monster.bossHealth);
+          monster.target = createMonster(monster, monster.bossHealth, bossIndex);
           normal = true;
         }
       }

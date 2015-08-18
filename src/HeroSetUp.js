@@ -5,13 +5,14 @@ import .DisplayText;
 
 
 exports = {
-  heroBuild: function(ID, level, dmg, cost, bool){
+  heroBuild: function(ID, level, dmg, cost, bool, view){
     this.ID = ID;
     this.level = level;
     this.damage = dmg;
     this.cost = cost;
     this.exist = bool;
-    this.dragonCostText = DisplayText.display(this.cost, ' gold', -100, 550, 30);
+    this.costDisplay = DisplayText.display(this.cost, ' gold', 320, 10, 25, view);
+    this.dmgDisplay = DisplayText.display(this.damage, ' DPS', 320, 40, 25, view);
   },
 
   heroRegister: function(button, hero, player, monster){
@@ -41,8 +42,8 @@ exports = {
         hero.level += 1;
         hero.damage += 2;
         hero.cost += hero.cost*50/100
-        hero.dragonCostText.destroy();
-        hero.dragonCostText = DisplayText.display(hero.cost, ' gold', -100, 550, 30);
+        hero.costDisplay.destroy();
+        hero.costDisplay = DisplayText.display(hero.cost, ' gold', -100, 550, 30);
         // Dragon at level 10: Increase hero's damage by 10%
         if(hero.level == 10){
           heroTapDamage += heroTapDamage*10/100;
