@@ -1,13 +1,17 @@
 import scene;
 import effects;
 import communityart;
-import .gameUI;
+import .GameUI;
 import .Calculation;
-import .displayText;
+import .DisplayText;
+import .HeroSetUp;
+import .Player;
+import .ButtonRegister;
 
 scene.setTextColor("#FFFFFF");
 
 exports = scene(function() {
+
   //Add background and others views
   var background = scene.addBackground ({url: 'resources/images/BA_BG.png'});
   var platform = scene.addActor({url: 'resources/images/platform.png'}, {
@@ -16,55 +20,44 @@ exports = scene(function() {
     width: 350,
     height: 500
   });
-
-  scrollView = gameUI.tabView();
-  scene.animate(scrollView)
-    .now({x: 1000}, 1)
+  var heroScrollView = GameUI.tabView();
+  scene.animate(heroScrollView)
+    .now({x: 1000}, 1);
+  var playerScrollView = GameUI.tabView();
+  scene.animate(playerScrollView)
+    .now({x: 1000}, 1);
+  var extraEffect = scene.addText(' ');
 
   // Stage and level
   var stage = 1;
   var miniStage = 0;
   var normal = true;
-  var bossTime = false;
   var left;
-  var bossIsDead;
 
-  // Monster variables
-  var monsterHealth = Calculation.monsterHP(stage);
-  var bossHealth = Calculation.bossHP(stage, monsterHealth);
-  var monsterGold = Calculation.monsterGold(monsterHealth,stage);
-  var bossGold = Calculation.bossGold(monsterGold, stage);
-
-  // Hero variables
-  var heroLevel = 10;
-  var heroBank = 0;
-  var levelGold = 5;
-  var critMulti = 10;
-
-  var index = 0;
-  var copyIndex;
-  var monsterImages = ['resources/images/monster.png', 'resources/images/boss_fly.png', 'resources/images/char_hero.png'];
-  var target;
+  // Monster
+  var neutralMonster = new Player.monsterBuilder(stage);
+  // Player
+  var player = new Player.playerBuilder(playerScrollView);
+  //Heroes
+  var dragon = new HeroSetUp.heroBuild(1, 1, 10, 50, false);
+  // Skills
   var ttsSkillAmount = 200;
-  var extraEffect = scene.addText(' ');
 
-  // Small Dragon Hero
-  var dragLevel = 0;
-  var dragExist = false;
-  var dragGold = 50;
-  var dragDamage = 2;
-
-  // playerDPS calculate the tap damage - This should be put inside Calculation file
-  var heroTapDamage = Calculation.playerDPS(heroLevel);
-
+  // Heroes buttons
+  var dragButton = GameUI.setUp(10, 10, 100, 100, 'resources/images/littleDragon.png', heroScrollView);
 
   // Buttons
-  var levelUpButton = gameUI.setUp(10, 10, 100, 100, 'resources/images/lvluparrow.png', scene.ui);
-  var toTheSky = gameUI.setUp(10, 250, 100, 100, 'resources/images/nukeee.png', scene.ui);
-  var dragButton = gameUI.setUp(10, 10, 100, 100, 'resources/images/littleDragon.png', scrollView);
-  var heroTab = gameUI.setUp(250, 900, 100, 100, 'resources/images/heroTabButton.png', scene.ui);
-  var hpBar = gameUI.progressB(220, 60, 50, 10, 'resources/images/bar_honey_empty.png', 'resources/images/bar_honey_full.png' )
-  var leaveBoss = gameUI.setUp(420, 30, 100, 100, 'resources/images/heroTabButton.png', scene.ui);
+  var heroTab = GameUI.setUp(120, 930, 150, 100, 'resources/images/heroTabButton.png', scene.ui);
+  var playerTab = GameUI.setUp(-10, 930, 150, 100, 'resources/images/heroTabButton.png', scene.ui);
+  ButtonRegister.registerMenu(heroTab, false, heroScrollView);
+  ButtonRegister.registerMenu(playerTab, false, playerScrollView);
+
+  var levelUpButton = GameUI.setUp(10, 100, 50, 50, 'resources/images/lvluparrow.png', playerScrollView);
+  ButtonRegister.registerLevelUp(levelUpButton, player, playerScrollView);
+
+  var toTheSky = GameUI.setUp(10, 250, 100, 100, 'resources/images/nukeee.png', scene.ui);
+  var leaveBoss = GameUI.setUp(420, 30, 100, 100, 'resources/images/heroTabButton.png', scene.ui);
+
 
   // Display the leave and fight boss button
   leaveBoss.registerListener('onDown', function(){
@@ -72,253 +65,140 @@ exports = scene(function() {
     scene.animate(leaveBoss)
       .then({x: 1000}, 1)
     left = true;
-    target.destroy();
+    neutralMonster.target.destroy();
   })
   scene.animate(leaveBoss)
     .now({x: 1000}, 1);
 
-  var fightBoss = gameUI.setUp(420, 30, 100, 100, 'resources/images/heroTabButton.png', scene.ui);
+  var fightBoss = GameUI.setUp(420, 30, 100, 100, 'resources/images/heroTabButton.png', scene.ui);
   fightBoss.registerListener('onDown', function(){
     scene.animate(fightBoss)
       .then({x: 1000}, 1)
     left = false;
-    target.destroy();
+    neutralMonster.target.destroy();
   });
   scene.animate(fightBoss)
     .now({x: 1000}, 1);
 
-  // Display the hero's info tab
-  var clicked = true;
-  heroTab.registerListener('onDown', function(){
-    if(clicked){
-      scene.animate(scrollView)
-        .now({x: 0}, 1)
-      clicked = false;
-    }else{
-      scene.animate(scrollView)
-        .now({x: 1000}, 1)
-      clicked = true;
-    }
-  })
-
+  neutralMonster.target = createMonster(neutralMonster, neutralMonster.monsterHealth);
   // Calling a dragon to help the hero
-  dragButton.registerListener('onDown', function(){
-    if(heroBank >= dragGold){
-      if(!dragExist){
-        var drag = scene.addActor({url: 'resources/images/littleDragon.png'}, {
-          x: 450,
-          y: 400,
-          width: 100,
-          heigt: 100
-        });
-        dragExist = true;
+  HeroSetUp.heroRegister(dragButton, dragon, player, neutralMonster);
 
-        scene.addInterval(function(){
-          target.hurt(dragDamage)
-          displayHealth.destroy();
-          displayHealth = displayText.numSlashNum(target.health.toFixed(1), monsterHealth, 130, 80, 'HP');
-          hpBar.setValue(target.health/monsterHealth, 100);
-        }, 3000)
-      }
-      heroBank -= dragGold;
-      totalGold.destroy()
-      totalGold = displayText.display(heroBank, ' gold', scene.screen.width - 250, scene.screen.height - 100, 30);
-      // Leveling up: increase damage by 2, increase the cost
-      dragLevel += 1;
-      dragDamage += 2;
-      dragGold += dragGold*50/100
-      dragonCostText.destroy();
-      dragonCostText = displayText.display(dragGold, ' gold', -100, 550, 30);
-      // Dragon at level 10: Increase hero's damage by 10%
-      if(dragLevel == 10){
-        heroTapDamage += heroTapDamage*10/100;
-        damageText.destroy();
-        damageText = displayText.display(heroTapDamage, ' Tap Damage', -50, scene.screen.height - 100, 30);
-      }
-      // Dragon at level 25: Increase monster's gold reward by 10%
-      if(dragLevel == 25){
-        monsterGold *= (1 + 10/100)
-      }
-      // Dragon at level 50: Do something
-      if(dragLevel == 50){
-      }
-      // Dragon at level 100: Do something
-      if(dragLevel == 100){
-      }
-    }else{
-      var notEnough = scene.addText('Not Enough Gold', {
-          x: 120,
-          y: 250,
-          size: 40
-        });
-        scene.animate(notEnough)
-        .now({opacity: 1}, 400)
-        .then({opacity: 0}, 500);
-    }
-  });
-  // Deal tons of damage if player have enough gold
-  toTheSky.registerListener('onDown', function(){
-    if(heroBank >= ttsSkillAmount){
-      target.hurt(heroTapDamage*100);
-      effects.explode(target);
-      // display total gold amount
-      heroBank -= ttsSkillAmount;
-      totalGold.destroy();
-      totalGold = displayText.display(heroBank, ' gold', scene.screen.width - 250, scene.screen.height - 100, 30);
-      // display the amount of gold to purchase
-      ttsSkillGold.destroy();
-      ttsSkillGold = displayText.display(ttsSkillAmount, ' gold', -100, 350, 30);
-    }else{
-      var notEnough = scene.addText('Not Enough Gold', {
-          x: 120,
-          y: 250,
-          size: 40
-        });
-        scene.animate(notEnough)
-        .now({opacity: 1}, 400)
-        .then({opacity: 0}, 500);
-    }
-  });
-
-  // leveling up if player have enough gold to evolve
-  levelUpButton.registerListener('onDown', function(){
-      if(heroBank >= levelGold){
-        heroLevel +=1;
-        damageText.destroy();
-        heroTapDamage = Calculation.playerDPS(heroLevel);
-        // display a new tap damage text
-        damageText = displayText.display(heroTapDamage, ' Tap Damage', -50, scene.screen.height - 100, 30);
-        // display the total gold amount
-        heroBank -= levelGold;
-        totalGold.destroy();
-        totalGold = displayText.display(heroBank, ' gold', scene.screen.width - 250, scene.screen.height - 100, 30);
-        levelGold += levelGold*50/100;
-        // display new level gold
-        nextLevelGold.destroy();
-        nextLevelGold = displayText.display(levelGold, ' gold', -100, 100, 30);
-        effects.explode(hero);
-      }else{
-        var notEnough = scene.addText('Not Enough Gold', {
-          x: 120,
-          y: 250,
-          size: 40
-        });
-        scene.animate(notEnough)
-        .now({opacity: 1}, 400)
-        .then({opacity: 0}, 500);
-      }
-  });
-
-  // Initialize first monster and hero
-  target = createMonster(monsterImages[index], monsterHealth);
-
-  var hero = scene.addPlayer({url: 'resources/images/player.png'}, {
-    superview: scene.ui,
-    x: scene.screen.width/2 - 30,
-    y: scene.screen.height - 400,
-    zIndex: 1
-  });
-
-  // Display text info:
-  // Hero damage, level gold, total gold, etc
-
-  var damageText = displayText.display(heroTapDamage, ' Tap Damage', -50, scene.screen.height - 100, 30);
-  var totalGold = displayText.display(heroBank, ' gold', scene.screen.width - 250, scene.screen.height - 100, 30);
-  var nextLevelGold = displayText.display(levelGold, ' gold', -100, 100, 30);
-  var ttsSkillGold = displayText.display(ttsSkillAmount, ' gold', -100, 350, 30);
-  var dragonCostText = displayText.display(dragGold, ' gold', -100, 550, 30);
+  var ttsSkillGold = DisplayText.display(ttsSkillAmount, ' gold', -100, 350, 30, scene.ui);
 
   //Display text in format "String/String"
-  var displayHealth;
-  var stageInfo = displayText.numSlashNum(miniStage, 10, 300, 35, '');
+  var stageInfo = DisplayText.numSlashNum(miniStage, 10, 300, 35, '');
 
+  // Deal tons of damage if player have enough gold
+  toTheSky.registerListener('onDown', function(){
+    if(player.playerBank >= ttsSkillAmount){
+      target.hurt(player.heroTapDamage*100);
+      effects.explode(target);
+      // display total gold amount
+      player.playerBank -= ttsSkillAmount;
+      player.totalGold.destroy();
+      player.totalGold = DisplayText.display(player.playerBank, ' gold', scene.screen.width - 250, scene.screen.height - 100, 30, scene.ui);
+      // display the amount of gold to purchase
+      ttsSkillGold.destroy();
+      ttsSkillGold = DisplayText.display(ttsSkillAmount, ' gold', -100, 350, 30, scene.ui);
+    }else{
+      var notEnough = scene.addText('Not Enough Gold', {
+          x: 120,
+          y: 250,
+          size: 40
+        });
+        scene.animate(notEnough)
+        .now({opacity: 1}, 400)
+        .then({opacity: 0}, 500);
+    }
+  });
 
-  function createMonster(monsterImage, mHealth){
-    var monster = scene.addActor({url: monsterImage}, {
+  function createMonster(monster, mHealth){
+    var myActor = scene.addActor({url: monster.monsterImages[monster.index]}, {
       x: 150,
       y: 400,
       width: 300,
       height: 300,
       health: mHealth
     });
-    displayHealth = displayText.numSlashNum(monster.health.toFixed(1), mHealth, 130, 80, 'HP');
-
-    hpBar.setValue(1, 100);
+    monster.displayHealth = DisplayText.numSlashNum(myActor.health.toFixed(1), mHealth, 130, 80, 'HP');
+    monster.hpBar.setValue(1, 100);
     // Monster/Boss is being killed
-    monster.onDestroy(function(){
+    myActor.onDestroy(function(){
       if(normal){
-        displayHealth.destroy();
+        monster.displayHealth.destroy();
         stageInfo.destroy();
+        var startX = 300;
         var startY = 450;
-        index++;
+        monster.index++;
         if(miniStage <= 9){
           miniStage += 1;
-          var goldReceived = scene.addText('+ ' + monsterGold.toFixed(1) + ' gold', {
-            x: 300,
+          var goldReceived = scene.addText('+ ' + monster.monsterGold.toFixed(1) + ' gold', {
+            x: startX,
             y: startY,
             size: 40
           });
         }else{
           stage += 1;
           miniStage = 0;
-          var goldReceived = scene.addText('+ ' + bossGold.toFixed(1) + ' gold', {
-            x: 300,
+          var goldReceived = scene.addText('+ ' + monster.bossGold.toFixed(1) + ' gold', {
+            x: startX,
             y: startY,
             size: 40
           });
           scene.animate(leaveBoss)
             .then({x: 1000}, 1);
-          monsterHealth = Calculation.monsterHP(stage);
-          monsterGold = Calculation.monsterGold(monsterHealth, stage);
-          bossHealth = Calculation.bossHP(stage, monsterHealth);
-          bossGold = Calculation.bossGold(monsterGold,stage);
-          bossTime = false;
+          monster.monsterHealth = Calculation.monsterHP(stage);
+          monster.monsterGold = Calculation.monsterGold(monster.monsterHealth, stage);
+          monster.bossHealth = Calculation.bossHP(stage, monster.monsterHealth);
+          monster.bossGold = Calculation.bossGold(monster.monsterGold,stage);
+          monster.bossTime = false;
         }
-        if(index == monsterImages.length){
-          index = 0;
+        if(monster.index == monster.monsterImages.length){
+          monster.index = 0;
         };
-        stageInfo = displayText.numSlashNum(miniStage, 10, 300, 35, '');
-        heroBank += monsterGold;
+        stageInfo = DisplayText.numSlashNum(miniStage, 10, 300, 35, '');
+        player.playerBank += monster.monsterGold;
         // Animate Gold Received
         scene.animate(goldReceived, 'opacity')
           .now({opacity: 1, y: startY - 75},  500 )
           .then({opacity: 0}, 500 );
         // Display total gold left
-        totalGold.destroy();
-        totalGold = displayText.display(heroBank, ' gold', scene.screen.width - 250, scene.screen.height - 100, 30);
+        player.totalGold.destroy();
+        player.totalGold = DisplayText.display(player.playerBank, ' gold', 320, 0, 25, playerScrollView);
 
         if(miniStage <= 9){
-          target = createMonster(monsterImages[index], monsterHealth);
+          monster.target = createMonster(monster, monster.monsterHealth);
         }else{
           stageInfo.destroy();
           //displayFightLeaveButton(true);
           scene.animate(leaveBoss)
             .then({x: 420}, 1);
-          copyIndex = index;
-          bossTime = true;
-          target = createMonster(monsterImages[index], bossHealth);
+          monster.copyIndex = monster.index;
+          monster.bossTime = true;
+          monster.target = createMonster(monster, monster.bossHealth);
         }
       }else{
-        displayHealth.destroy();
+        monster.displayHealth.destroy();
         if(left){
-          bossTime = false;
-          index++;
-          if(index >= monsterImages.length){
-            index = 0;
+          monster.bossTime = false;
+          monster.index++;
+          if(monster.index >= monster.monsterImages.length){
+            monster.index = 0;
           }
           scene.animate(fightBoss)
             .then({x: 420}, 1);
-          target = createMonster(monsterImages[index], monsterHealth);
+          monster.target = createMonster(monster, monster.monsterHealth);
         }else{
-          bossTime = true;
+          monster.bossTime = true;
           scene.animate(leaveBoss)
             .then({x: 420}, 1);
-          target = createMonster(monsterImages[copyIndex], bossHealth);
+          monster.target = createMonster(monster, monster.bossHealth);
           normal = true;
         }
       }
     });
-    return monster;
+    return myActor;
   };
 
   // Effect when touch the screen
@@ -337,31 +217,30 @@ exports = scene(function() {
         .now({opacity: 1}, 300)
         .then({opacity: 0}, 1000);
       // five times the damage
-      var dmgTaken = Calculation.criticalMultiplier(heroTapDamage, critMulti);
-      target.hurt(dmgTaken);
-      displayText.tapDamage(dmgTaken);
-      displayHealth.destroy();
-      if(!bossTime){
-        displayHealth = displayText.numSlashNum(target.health.toFixed(1), monsterHealth, 130, 80, 'HP');
-        hpBar.setValue(target.health/monsterHealth, 100);
+      var dmgTaken = Calculation.criticalMultiplier(player.heroTapDamage, player.critMulti);
+      neutralMonster.target.hurt(dmgTaken);
+      DisplayText.tapDamage(dmgTaken);
+      neutralMonster.displayHealth.destroy();
+      if(!neutralMonster.bossTime){
+        neutralMonster.displayHealth = DisplayText.numSlashNum(neutralMonster.target.health.toFixed(1), neutralMonster.monsterHealth, 130, 80, 'HP');
+        neutralMonster.hpBar.setValue(neutralMonster.target.health/neutralMonster.monsterHealth, 100);
       }else{
-        displayHealth = displayText.numSlashNum(target.health.toFixed(1), bossHealth, 130, 80, 'HP');
-        hpBar.setValue(target.health/bossHealth, 100);
+        neutralMonster.displayHealth = DisplayText.numSlashNum(neutralMonster.target.health.toFixed(1), neutralMonster.bossHealth, 130, 80, 'HP');
+        neutralMonster.hpBar.setValue(neutralMonster.target.health/neutralMonster.bossHealth, 100);
       }
     }else{
-      target.hurt(heroTapDamage);
-      displayText.tapDamage(heroTapDamage);
-      displayHealth.destroy();
-      if(!bossTime){
-        displayHealth = displayText.numSlashNum(target.health.toFixed(1), monsterHealth, 130, 80, 'HP');
-        hpBar.setValue(target.health/monsterHealth, 100);
+      neutralMonster.target.hurt(player.heroTapDamage);
+      DisplayText.tapDamage(player.heroTapDamage);
+      neutralMonster.displayHealth.destroy();
+      if(!neutralMonster.bossTime){
+        neutralMonster.displayHealth = DisplayText.numSlashNum(neutralMonster.target.health.toFixed(1), neutralMonster.monsterHealth, 130, 80, 'HP');
+        neutralMonster.hpBar.setValue(neutralMonster.target.health/neutralMonster.monsterHealth, 100);
       }else{
-        displayHealth = displayText.numSlashNum(target.health.toFixed(1), bossHealth, 130, 80, 'HP');
-        hpBar.setValue(target.health/bossHealth, 100);
+        neutralMonster.displayHealth = DisplayText.numSlashNum(neutralMonster.target.health.toFixed(1), neutralMonster.bossHealth, 130, 80, 'HP');
+        neutralMonster.hpBar.setValue(neutralMonster.target.health/neutralMonster.bossHealth, 100);
       }
     }
     effects.firework(extraEffect);
-    effects.shake(target);
+    effects.shake(neutralMonster.target);
   });
-
 });
