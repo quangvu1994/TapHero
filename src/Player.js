@@ -20,8 +20,11 @@ exports = {
     });
 
     this.damageText = DisplayText.display(this.heroTapDamage, ' Tap Damage', -60, 0, 25, view);
-    this.nextLevelGold = DisplayText.display(this.levelGold, ' gold', -50, 100, 25, view);
+    this.nextLevelGold = DisplayText.display(this.levelGold, ' gold', 320, 100, 25, view);
     this.totalGold = DisplayText.display(this.playerBank, ' gold', 320, 0, 25, view);
+    // Skills properties
+    this.nukeAmount = 200;
+    this.nukeAmountDisplay = DisplayText.display(this.nukeAmount, ' gold', 320, 170, 25, view);
   },
 
   monsterBuilder: function(stage){

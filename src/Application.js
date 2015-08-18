@@ -40,9 +40,6 @@ exports = scene(function() {
   var player = new Player.playerBuilder(playerScrollView);
   //Heroes
   var dragon = new HeroSetUp.heroBuild(1, 1, 10, 50, false);
-  // Skills
-  var ttsSkillAmount = 200;
-
   // Heroes buttons
   var dragButton = GameUI.setUp(10, 10, 100, 100, 'resources/images/littleDragon.png', heroScrollView);
 
@@ -55,10 +52,10 @@ exports = scene(function() {
   var levelUpButton = GameUI.setUp(10, 100, 50, 50, 'resources/images/lvluparrow.png', playerScrollView);
   ButtonRegister.registerLevelUp(levelUpButton, player, playerScrollView);
 
-  var toTheSky = GameUI.setUp(10, 250, 100, 100, 'resources/images/nukeee.png', scene.ui);
+  var nuke = GameUI.setUp(10, 180, 50, 50, 'resources/images/nukeee.png', playerScrollView);
+  ButtonRegister.registerNukeSkill(nuke, player, neutralMonster, playerScrollView);
+
   var leaveBoss = GameUI.setUp(420, 30, 100, 100, 'resources/images/heroTabButton.png', scene.ui);
-
-
   // Display the leave and fight boss button
   leaveBoss.registerListener('onDown', function(){
     normal = false;
@@ -84,34 +81,10 @@ exports = scene(function() {
   // Calling a dragon to help the hero
   HeroSetUp.heroRegister(dragButton, dragon, player, neutralMonster);
 
-  var ttsSkillGold = DisplayText.display(ttsSkillAmount, ' gold', -100, 350, 30, scene.ui);
-
   //Display text in format "String/String"
   var stageInfo = DisplayText.numSlashNum(miniStage, 10, 300, 35, '');
 
   // Deal tons of damage if player have enough gold
-  toTheSky.registerListener('onDown', function(){
-    if(player.playerBank >= ttsSkillAmount){
-      target.hurt(player.heroTapDamage*100);
-      effects.explode(target);
-      // display total gold amount
-      player.playerBank -= ttsSkillAmount;
-      player.totalGold.destroy();
-      player.totalGold = DisplayText.display(player.playerBank, ' gold', scene.screen.width - 250, scene.screen.height - 100, 30, scene.ui);
-      // display the amount of gold to purchase
-      ttsSkillGold.destroy();
-      ttsSkillGold = DisplayText.display(ttsSkillAmount, ' gold', -100, 350, 30, scene.ui);
-    }else{
-      var notEnough = scene.addText('Not Enough Gold', {
-          x: 120,
-          y: 250,
-          size: 40
-        });
-        scene.animate(notEnough)
-        .now({opacity: 1}, 400)
-        .then({opacity: 0}, 500);
-    }
-  });
 
   function createMonster(monster, mHealth){
     var myActor = scene.addActor({url: monster.monsterImages[monster.index]}, {
