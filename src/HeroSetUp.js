@@ -6,7 +6,7 @@ import .SkillSetUp;
 
 
 exports = {
-  heroBuild: function(ID, dmg, cost, img, position, view){
+  heroBuild: function(ID, dmg, cost, img, position){
     this.ID = ID;
     this.level = 0;
     this.damage = dmg;
@@ -16,11 +16,12 @@ exports = {
     this.posX = position[1];
     this.posY = position[2];
     this.keyPos = position[0];
-    this.costDisplay = DisplayText.display(this.cost, ' gold', 320, this.keyPos, 25, view);
-    this.dmgDisplay = DisplayText.display(this.damage, ' DPS', 320, this.keyPos+30, 25, view);
+    this.costDisplay = DisplayText.display(this.cost, ' gold', 320, this.keyPos, 25, heroScrollView);
+    this.dmgDisplay = DisplayText.display(this.damage, ' DPS', 320, this.keyPos+30, 25, heroScrollView);
+    // Need to display the hero level too
   },
 
-  heroRegister: function(button, hero, player, monster, skillSet, view){
+  heroRegister: function(button, hero, player, monster, skillSet){
     button.registerListener('onDown', function(){
       if(player.playerBank >= hero.cost){
         if(!hero.exist){
@@ -46,16 +47,18 @@ exports = {
         }
 
         player.playerBank -= hero.cost;
-        player.totalGold.destroy()
-        player.totalGold = DisplayText.display(player.playerBank, ' gold', 320, 0, 25, view[0]);
+        player.totalGold.destroy();
+        player.goldDisplay.destroy();
+        player.totalGold = DisplayText.display(player.playerBank, ' gold', 320, 0, 25, playerScrollView);
+        player.goldDisplay = DisplayText.display(player.playerBank, ' ', 150, 130, 35, scene.ui);
         // Leveling up: increase damage by 2, increase the cost
         hero.level += 1;
         hero.damage += 2;
         hero.cost += hero.cost*50/100
         hero.costDisplay.destroy();
         hero.dmgDisplay.destroy();
-        hero.costDisplay = DisplayText.display(hero.cost, ' gold', 320, hero.keyPos, 25, view[1]);
-        hero.dmgDisplay = DisplayText.display(hero.damage, ' DPS', 320, hero.keyPos+30, 25, view[1]);
+        hero.costDisplay = DisplayText.display(hero.cost, ' gold', 320, hero.keyPos, 25, heroScrollView);
+        hero.dmgDisplay = DisplayText.display(hero.damage, ' DPS', 320, hero.keyPos+30, 25, heroScrollView);
         if(hero.level == 10){
           SkillSetUp.skillBuilder(skillSet[0], player, hero)
         }
