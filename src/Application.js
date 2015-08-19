@@ -9,14 +9,16 @@ import .Player;
 import .ButtonRegister;
 
 scene.setTextColor("#FFFFFF");
+var HERO_WIDTH = 80;
+var HERO_HEIGHT = 80;
 
 exports = scene(function() {
   //Add background and others views
   var background = scene.addBackground ({url: 'resources/images/BA_BG.png'});
   var platform = scene.addActor({url: 'resources/images/platform.png'}, {
-    x: 120,
+    x: -150,
     y: 690,
-    width: 350,
+    width: 1000,
     height: 500
   });
   var heroScrollView = GameUI.tabView();
@@ -40,9 +42,12 @@ exports = scene(function() {
   // Player
   var player = new Player.playerBuilder(playerScrollView);
   //Heroes
-  var dragon = new HeroSetUp.heroBuild(1, 1, 10, 50, false, heroScrollView);
+  var dragon = new HeroSetUp.heroBuild(1, 10, 1, 'resources/images/littleDragon.png', [10, 450, 400], heroScrollView);
+  var angryKitty = new HeroSetUp.heroBuild(2, 100, 1, 'resources/images/angryKitty.png', [100, 100, 630], heroScrollView);
   // Heroes buttons
-  var dragButton = GameUI.setUp(10, 10, 100, 100, 'resources/images/littleDragon.png', heroScrollView);
+  var dragButton = GameUI.setUp(20, 20, HERO_WIDTH, HERO_HEIGHT, dragon.image, heroScrollView);
+  var angryKittyButton = GameUI.setUp(20, 120, HERO_WIDTH, HERO_HEIGHT, angryKitty.image, heroScrollView);
+
   // Buttons
   var heroTab = GameUI.setUp(120, 930, 150, 100, 'resources/images/heroTabButton.png', scene.ui);
   var playerTab = GameUI.setUp(-10, 930, 150, 100, 'resources/images/heroTabButton.png', scene.ui);
@@ -56,7 +61,8 @@ exports = scene(function() {
   ButtonRegister.registerNukeSkill(nuke, player, neutralMonster, playerScrollView);
 
   // Setting up heroes
-  HeroSetUp.heroRegister(dragButton, dragon, player, neutralMonster);
+  HeroSetUp.heroRegister(dragButton, dragon, player, neutralMonster, [1,4,5,6], [playerScrollView, heroScrollView]);
+  HeroSetUp.heroRegister(angryKittyButton, angryKitty, player, neutralMonster, [1,4,5,6], [playerScrollView, heroScrollView]);
 
   // Display the leave and fight boss button
   leaveBoss.registerListener('onDown', function(){

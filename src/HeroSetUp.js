@@ -2,63 +2,71 @@ import scene;
 import .GameUI;
 import .Player;
 import .DisplayText;
+import .SkillSetUp;
 
 
 exports = {
-  heroBuild: function(ID, level, dmg, cost, bool, view){
+  heroBuild: function(ID, dmg, cost, img, position, view){
     this.ID = ID;
-    this.level = level;
+    this.level = 0;
     this.damage = dmg;
     this.cost = cost;
-    this.exist = bool;
-    this.costDisplay = DisplayText.display(this.cost, ' gold', 320, 10, 25, view);
-    this.dmgDisplay = DisplayText.display(this.damage, ' DPS', 320, 40, 25, view);
+    this.exist = false;
+    this.image = img;
+    this.posX = position[1];
+    this.posY = position[2];
+    this.keyPos = position[0];
+    this.costDisplay = DisplayText.display(this.cost, ' gold', 320, this.keyPos, 25, view);
+    this.dmgDisplay = DisplayText.display(this.damage, ' DPS', 320, this.keyPos+30, 25, view);
   },
 
-  heroRegister: function(button, hero, player, monster){
+  heroRegister: function(button, hero, player, monster, skillSet, view){
     button.registerListener('onDown', function(){
       if(player.playerBank >= hero.cost){
         if(!hero.exist){
-          var drag = scene.addActor({url: 'resources/images/littleDragon.png'}, {
-            x: 450,
-            y: 400,
+          var drag = scene.addActor({url: hero.image}, {
+            x: hero.posX,
+            y: hero.posY,
             width: 100,
             heigt: 100
           });
           hero.exist = true;
 
           scene.addInterval(function(){
-            monster.target.hurt(hero.damage)
+            monster.target.hurt(hero.damage);
             monster.displayHealth.destroy();
-            monster.displayHealth = DisplayText.numSlashNum(monster.target.health.toFixed(1), monster.monsterHealth, 130, 80, 'HP');
-            monster.hpBar.setValue(monster.target.health/monster.monsterHealth, 100);
-          }, 3000)
+            if(monster.bossTime){
+              monster.displayHealth = DisplayText.numSlashNum(monster.target.health.toFixed(1), monster.bossHealth, 130, 80, 'HP');
+              monster.hpBar.setValue(monster.target.health/monster.bossHealth, 100);
+            }else{
+              monster.displayHealth = DisplayText.numSlashNum(monster.target.health.toFixed(1), monster.monsterHealth, 130, 80, 'HP');
+              monster.hpBar.setValue(monster.target.health/monster.monsterHealth, 100);
+              };
+          }, 3000);
         }
 
         player.playerBank -= hero.cost;
         player.totalGold.destroy()
-        player.totalGold = DisplayText.display(player.playerBank, ' gold', scene.screen.width - 250, scene.screen.height - 100, 30);
+        player.totalGold = DisplayText.display(player.playerBank, ' gold', 320, 0, 25, view[0]);
         // Leveling up: increase damage by 2, increase the cost
         hero.level += 1;
         hero.damage += 2;
         hero.cost += hero.cost*50/100
         hero.costDisplay.destroy();
-        hero.costDisplay = DisplayText.display(hero.cost, ' gold', -100, 550, 30);
-        // Dragon at level 10: Increase hero's damage by 10%
+        hero.dmgDisplay.destroy();
+        hero.costDisplay = DisplayText.display(hero.cost, ' gold', 320, hero.keyPos, 25, view[1]);
+        hero.dmgDisplay = DisplayText.display(hero.damage, ' DPS', 320, hero.keyPos+30, 25, view[1]);
         if(hero.level == 10){
-          heroTapDamage += heroTapDamage*10/100;
-          damageText.destroy();
-          damageText = DisplayText.display(heroTapDamage, ' Tap Damage', -50, scene.screen.height - 100, 30);
+          SkillSetUp.skillBuilder(skillSet[0], player, hero)
         }
-        // Dragon at level 25: Increase monster's gold reward by 10%
         if(hero.level == 25){
-          monsterGold *= (1 + 10/100)
+          SkillSetUp.skillBuilder(skillSet[1], player, hero)
         }
-        // Dragon at level 50: Do something
         if(hero.level == 50){
+          SkillSetUp.skillBuilder(skillSet[2], player, hero)
         }
-        // Dragon at level 100: Do something
         if(hero.level == 100){
+          SkillSetUp.skillBuilder(skillSet[3], player, hero)
         }
       }else{
         var notEnough = scene.addText('Not Enough Gold', {

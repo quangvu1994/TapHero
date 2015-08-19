@@ -43,7 +43,7 @@ exports = {
         size: 30
       });
     }else{
-      var myText = scene.addText(leftVal+ ' /' + rightVal + ' ' + string, {
+      var myText = scene.addText(leftVal + ' /' + rightVal + ' ' + string, {
         x: posX,
         y: posY,
         size: 30
