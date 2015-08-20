@@ -53,13 +53,15 @@ exports = scene(function() {
   var heroTab = GameUI.setUp(120, 930, 150, 100, 'resources/images/heroTabButton.png', scene.ui);
   var playerTab = GameUI.setUp(-10, 930, 150, 100, 'resources/images/heroTabButton.png', scene.ui);
   var levelUpButton = GameUI.setUp(10, 100, 50, 50, 'resources/images/lvluparrow.png', playerScrollView);
-  var nuke = GameUI.setUp(10, 180, 50, 50, 'resources/images/nukeee.png', playerScrollView);
   var leaveBoss = GameUI.setUp(420, 30, 100, 100, 'resources/images/heroTabButton.png', scene.ui);
   var fightBoss = GameUI.setUp(420, 30, 100, 100, 'resources/images/heroTabButton.png', scene.ui);
   ButtonRegister.registerMenu(heroTab, heroScrollView, playerScrollView);
   ButtonRegister.registerMenu(playerTab, playerScrollView, heroScrollView);
   ButtonRegister.registerLevelUp(levelUpButton, player);
-  ButtonRegister.registerNukeSkill(nuke, player, neutralMonster);
+
+  //Player's skill buttons
+  var smokeBombButton = GameUI.setUp(10, 180, 50, 50, 'resources/images/smokeBomb.png', playerScrollView);
+  ButtonRegister.registerBombSkill(smokeBombButton, player, neutralMonster);
 
   // Setting up heroes
   HeroSetUp.heroRegister(dragButton, dragon, player, neutralMonster, [1,4,5,6]);
@@ -89,6 +91,9 @@ exports = scene(function() {
 
   var mobIndex = 0;
   var bossIndex = 0;
+  var startX = 300;
+  var startY = 450;
+  var goldReceiveTracker = false;
   neutralMonster.target = createMonster(neutralMonster, neutralMonster.monsterHealth, mobIndex);
   function createMonster(monster, mHealth, index){
       var myActor = scene.addActor({url: monster.monsterImages[index]}, {
@@ -106,8 +111,6 @@ exports = scene(function() {
       if(normal){
         monster.displayHealth.destroy();
         stageDisplay.destroy();
-        var startX = 300;
-        var startY = 450;
         mobIndex++;
         if(miniStage <= 9){
           miniStage += 1;
@@ -116,6 +119,7 @@ exports = scene(function() {
             y: startY,
             size: 40
           });
+          player.playerBank += monster.monsterGold;
         }else{
           stage += 1;
           miniStage = 0;
@@ -124,6 +128,7 @@ exports = scene(function() {
             y: startY,
             size: 40
           });
+          player.playerBank += monster.bossGold;
           scene.animate(leaveBoss)
             .then({x: 1000}, 1);
           scene.removeInterval(clock);
@@ -138,7 +143,6 @@ exports = scene(function() {
           mobIndex = 0;
         };
         stageDisplay = DisplayText.numSlashNum(miniStage, 10, 300, 35, '');
-        player.playerBank += monster.monsterGold;
         // Animate Gold Received
         scene.animate(goldReceived, 'opacity')
           .now({opacity: 1, y: startY - 75},  500 )
@@ -163,12 +167,12 @@ exports = scene(function() {
           var miliseconds = 100;
           var count = 0;
           var timeleft = 0;
-          monster.displayFightTime = DisplayText.display(monster.bossTimer, ' s', 8, 40, 25, scene.ui)
+          monster.displayFightTime = DisplayText.display(monster.bossTimer, ' s', -20, 30, 25, scene.ui)
             clock = scene.addInterval(function(){
             count += miliseconds;
             timeleft = monster.bossTimer - count/1000;
             monster.displayFightTime.destroy();
-            monster.displayFightTime = DisplayText.display(timeleft, ' s', 8, 40, 25, scene.ui)
+            monster.displayFightTime = DisplayText.display(timeleft, ' s', -20, 30, 25, scene.ui)
             if(monster.bossTimer == count/1000){
               monster.displayFightTime.destroy();
               monster.bossTime = false;
@@ -189,10 +193,28 @@ exports = scene(function() {
           if(mobIndex >= monster.monsterImages.length){
             mobIndex = 0;
           }
+          if(goldReceiveTracker){
+            player.playerBank += monster.monsterGold;
+            var goldReceived = scene.addText('+ ' + monster.monsterGold.toFixed(1) + ' gold', {
+              x: startX,
+              y: startY,
+              size: 40
+            });
+            scene.animate(goldReceived, 'opacity')
+              .now({opacity: 1, y: startY - 75},  500 )
+              .then({opacity: 0}, 500 );
+            player.totalGold.destroy();
+            player.goldDisplay.destroy();
+            player.totalGold = DisplayText.display(player.playerBank, ' gold', 320, 0, 25, playerScrollView);
+            player.goldDisplay = DisplayText.display(player.playerBank, ' ', 150, 130, 35, scene.ui);
+          }else{
+            goldReceiveTracker = true;
+          }
           scene.animate(fightBoss)
             .then({x: 420}, 1);
           monster.target = createMonster(monster, monster.monsterHealth, mobIndex);
         }else{
+          goldReceiveTracker = false
           monster.bossTime = true;
           scene.animate(leaveBoss)
             .then({x: 420}, 1);
@@ -202,12 +224,12 @@ exports = scene(function() {
           var miliseconds = 100;
           var count = 0;
           var timeleft = 0;
-          monster.displayFightTime = DisplayText.display(monster.bossTimer, ' s', 8, 40, 25, scene.ui)
+          monster.displayFightTime = DisplayText.display(monster.bossTimer, ' s', -20, 25, 25, scene.ui)
             clock = scene.addInterval(function(){
             count += miliseconds;
             timeleft = monster.bossTimer - count/1000;
             monster.displayFightTime.destroy();
-            monster.displayFightTime = DisplayText.display(timeleft, ' s', 8, 40, 25, scene.ui)
+            monster.displayFightTime = DisplayText.display(timeleft, ' s', -20, 25, 25, scene.ui)
             if(monster.bossTimer == count/1000){
               monster.displayFightTime.destroy();
               monster.bossTime = false;

@@ -52,6 +52,25 @@ exports = {
     return myText;
   },
 
+  stringNum: function(num, string, posX, posY, sizeNum, view){
+    if(num >= 1000){
+      var myText = scene.addText(string + (num/1000).toFixed(1) + ' K', {
+        superview: view,
+        x: posX,
+        y: posY,
+        size: sizeNum
+      });
+    }else{
+      var myText = scene.addText(string + num, {
+        superview: view,
+        x: posX,
+        y: posY,
+        size: sizeNum
+      });
+    };
+    return myText;
+  },
+
   tapDamage: function(damage){
     var dmg = scene.addText(damage.toFixed(1), {size: 40})
     scene.animate(dmg)

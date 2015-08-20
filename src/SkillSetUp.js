@@ -2,6 +2,20 @@ import scene;
 import .Player;
 
 exports = {
+  playerSkillCooldown: function(button, cdTime){
+    button.disabled = true;
+    var cooldownTime = cdTime;
+    var miliseconds = 100;
+    var count = 0;
+    var clock = scene.addInterval(function(){
+      count += miliseconds;
+      if(count/1000 == cooldownTime){
+        button.disabled = false;
+        scene.removeInterval(clock);
+      }
+    }, miliseconds);
+  },
+
   skillBuilder: function(skillNum, player, hero){
     switch(skillNum){
       // Increase heroTapDamage by 10%
@@ -30,7 +44,9 @@ exports = {
       case 7:
         hero.damage *= (1+1000/100)
         break;
-
+      //Increase gold drop amount
+      case 8:
+        break;
       default:
         break;
     }

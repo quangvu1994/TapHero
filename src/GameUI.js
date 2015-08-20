@@ -45,7 +45,8 @@ exports = {
           maxX:backgroundImage.getWidth(),
           minY: 0,
           maxY: backgroundImage.getHeight()
-        }
+        },
+        zIndex: 2
     });
       var imageView = new ImageView({
         superview: scrollView,
