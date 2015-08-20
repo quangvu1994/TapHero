@@ -61,7 +61,9 @@ exports = scene(function() {
 
   //Player's skill buttons
   var smokeBombButton = GameUI.setUp(10, 180, 50, 50, 'resources/images/smokeBomb.png', playerScrollView);
+  var internalDeath = GameUI.setUp(10, 280, 50, 50, 'resources/images/deathShadow.png', playerScrollView);
   ButtonRegister.registerBombSkill(smokeBombButton, player, neutralMonster);
+  ButtonRegister.registerInternalDeath(internalDeath, player, neutralMonster);
 
   // Setting up heroes
   HeroSetUp.heroRegister(dragButton, dragon, player, neutralMonster, [1,4,5,6]);
@@ -169,21 +171,21 @@ exports = scene(function() {
           var timeleft = 0;
           monster.displayFightTime = DisplayText.display(monster.bossTimer, ' s', -20, 30, 25, scene.ui)
             clock = scene.addInterval(function(){
-            count += miliseconds;
-            timeleft = monster.bossTimer - count/1000;
-            monster.displayFightTime.destroy();
-            monster.displayFightTime = DisplayText.display(timeleft, ' s', -20, 30, 25, scene.ui)
-            if(monster.bossTimer == count/1000){
+              count += miliseconds;
+              timeleft = monster.bossTimer - count/1000;
               monster.displayFightTime.destroy();
-              monster.bossTime = false;
-              normal = false;
-              scene.animate(leaveBoss)
-                .then({x: 1000}, 1)
-              left = true;
-              monster.target.destroy();
-              scene.removeInterval(clock);
-            }
-          }, miliseconds);
+              monster.displayFightTime = DisplayText.display(timeleft, ' s', -20, 30, 25, scene.ui)
+              if(monster.bossTimer == count/1000){
+                monster.displayFightTime.destroy();
+                monster.bossTime = false;
+                normal = false;
+                scene.animate(leaveBoss)
+                  .then({x: 1000}, 1)
+                left = true;
+                monster.target.destroy();
+                scene.removeInterval(clock);
+              }
+            }, miliseconds);
         }
       }else{
         monster.displayHealth.destroy();
@@ -226,20 +228,20 @@ exports = scene(function() {
           var timeleft = 0;
           monster.displayFightTime = DisplayText.display(monster.bossTimer, ' s', -20, 25, 25, scene.ui)
             clock = scene.addInterval(function(){
-            count += miliseconds;
-            timeleft = monster.bossTimer - count/1000;
-            monster.displayFightTime.destroy();
-            monster.displayFightTime = DisplayText.display(timeleft, ' s', -20, 25, 25, scene.ui)
-            if(monster.bossTimer == count/1000){
+              count += miliseconds;
+              timeleft = monster.bossTimer - count/1000;
               monster.displayFightTime.destroy();
-              monster.bossTime = false;
-              normal = false;
-              scene.animate(leaveBoss)
-                .then({x: 1000}, 1)
-              left = true;
-              monster.target.destroy();
-              scene.removeInterval(clock);
-            }
+              monster.displayFightTime = DisplayText.display(timeleft, ' s', -20, 25, 25, scene.ui)
+              if(monster.bossTimer == count/1000){
+                monster.displayFightTime.destroy();
+                monster.bossTime = false;
+                normal = false;
+                scene.animate(leaveBoss)
+                  .then({x: 1000}, 1)
+                left = true;
+                monster.target.destroy();
+                scene.removeInterval(clock);
+              }
           }, miliseconds);
         }
       }

@@ -85,10 +85,81 @@ exports = {
             var smokeBomb = GameUI.setUp(10, 820, 100, 100, 'resources/images/smokeBomb.png', scene.ui);
             smokeBomb.registerListener('onDown', function(){
               monster.target.hurt(player.heroTapDamage*damageBonus);
+              DisplayText.tapDamage(player.heroTapDamage*damageBonus);
+              monster.displayHealth.destroy();
+              if(monster.bossTime){
+                monster.displayHealth = DisplayText.numSlashNum(monster.target.health.toFixed(1), monster.bossHealth, 130, 80, 'HP');
+                monster.hpBar.setValue(monster.target.health/monster.bossHealth, 100);
+              }else{
+                monster.displayHealth = DisplayText.numSlashNum(monster.target.health.toFixed(1), monster.monsterHealth, 130, 80, 'HP');
+                monster.hpBar.setValue(monster.target.health/monster.monsterHealth, 100);
+              };
               effects.explode(monster.target);
               SkillSetUp.playerSkillCooldown(this, 30);
             });
           }
+        }else{
+          var notEnough = scene.addText('Not Enough Gold', {
+            x: 120,
+            y: 250,
+            size: 40
+          });
+          scene.animate(notEnough)
+          .now({opacity: 1}, 400)
+          .then({opacity: 0}, 500);
+        }
+      }
+    });
+  },
+
+  registerInternalDeath: function(button, player, monster){
+    var exist = false;
+    var damage = 100;
+    var count = 0;
+    var perSecond = 500;
+    var duration = 30;
+    //var skillDescription = scene.addText('Deal ' + damagebonus + '
+    var unlockAt = scene.addText('Unlock at level 25', {
+      superview: playerScrollView,
+      x: 50,
+      y: 270,
+      size: 30
+    });
+    button.registerListener('onDown', function(){
+      if(player.level >= 25){
+        if(player.playerBank >= player.internalDeathAmount){
+          unlockAt.destroy();
+          player.playerBank -= player.internalDeathAmount;
+          player.totalGold.destroy();
+          player.goldDisplay.destroy();
+          player.totalGold = DisplayText.display(player.playerBank, ' gold', 320, 0, 25, playerScrollView);
+          player.goldDisplay = DisplayText.display(player.playerBank, ' ', 150, 130, 35, scene.ui);
+          player.internalDeathAmount += 100;
+          player.bombDisplay.destroy();
+          player.bombDisplay = DisplayText.display(player.internalDeathAmount, ' gold', 320, 270, 25, playerScrollView);
+          damage += 10;
+          if(!exist){
+            var internalDeath = GameUI.setUp(100, 820, 100, 100, 'resources/images/deathShadow.png', scene.ui);
+            internalDeath.registerListener('onDown', function(){
+              var clock = scene.addInterval(function(){
+                monster.target.hurt(damage);
+                DisplayText.tapDamage(damage);
+                monster.displayHealth.destroy();
+                if(monster.bossTime){
+                  monster.displayHealth = DisplayText.numSlashNum(monster.target.health.toFixed(1), monster.bossHealth, 130, 80, 'HP');
+                  monster.hpBar.setValue(monster.target.health/monster.bossHealth, 100);
+                }else{
+                  monster.displayHealth = DisplayText.numSlashNum(monster.target.health.toFixed(1), monster.monsterHealth, 130, 80, 'HP');
+                  monster.hpBar.setValue(monster.target.health/monster.monsterHealth, 100);
+                };
+                count += perSecond;
+                if(count/1000 == duration){
+                  scene.removeInterval(clock);
+                }
+              }, perSecond);
+              SkillSetUp.playerSkillCooldown(this, 30);
+            });
+          };
         }else{
           var notEnough = scene.addText('Not Enough Gold', {
             x: 120,
