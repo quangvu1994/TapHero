@@ -165,6 +165,7 @@ exports = scene(function() {
           bossIndex = mobIndex;
           monster.bossTime = true;
           monster.target = createMonster(monster, monster.bossHealth, bossIndex);
+          effects.radial(monster.target);
 
           var miliseconds = 100;
           var count = 0;
@@ -221,6 +222,7 @@ exports = scene(function() {
           scene.animate(leaveBoss)
             .then({x: 420}, 1);
           monster.target = createMonster(monster, monster.bossHealth, bossIndex);
+          effects.radial(monster.target);
           normal = true;
 
           var miliseconds = 100;
@@ -276,6 +278,7 @@ exports = scene(function() {
         neutralMonster.displayHealth = DisplayText.numSlashNum(neutralMonster.target.health.toFixed(1), neutralMonster.bossHealth, 130, 80, 'HP');
         neutralMonster.hpBar.setValue(neutralMonster.target.health/neutralMonster.bossHealth, 100);
       }
+      effects.shake(background);
     }else{
       neutralMonster.target.hurt(player.heroTapDamage);
       DisplayText.tapDamage(player.heroTapDamage);

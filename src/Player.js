@@ -7,7 +7,7 @@ import .GameUI;
 exports = {
   playerBuilder: function(){
     this.level = 24;
-    this.playerBank = 2000;
+    this.playerBank = 10000;
     this.levelGold = 5;
     this.critMulti = 10;
     this.heroTapDamage = Calculation.playerDPS(this.level);

@@ -90,7 +90,7 @@ exports = {
           skillDescription = scene.addText('Deal tap damage x' + damageBonus, {
             superview: playerScrollView,
             x: 50,
-            y: 150,
+            y: 170,
             size: 28
           });
           if(!exist){
@@ -129,7 +129,7 @@ exports = {
     var count = 0;
     var multiplier = 0;
     var perSecond = (1/multiplier)*1000;
-    var duration = 30;
+    var duration = 10;
     var skillDescription = scene.addText('Deal damage over time', {
       superview: playerScrollView,
       x: 55,
@@ -179,6 +179,7 @@ exports = {
                 };
                 count += perSecond;
                 if(count/1000 >= duration){
+                  count = 0;
                   scene.removeInterval(clock);
                 }
               }, perSecond);
