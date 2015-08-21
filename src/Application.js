@@ -97,7 +97,12 @@ exports = scene(function() {
   var goldReceiveTracker = false;
   neutralMonster.target = createMonster(neutralMonster, neutralMonster.monsterHealth, mobIndex);
   function createMonster(monster, mHealth, index){
-      var myActor = scene.addActor({url: monster.monsterImages[index]}, {
+      var myActor = scene.addActor({
+        url: monster.monsterImages[index][0],
+        defaultAnimation: monster.monsterImages[index][1],
+        loop: true,
+        autoStart: true
+      }, {
         x: 150,
         y: 400,
         width: 300,
@@ -254,7 +259,6 @@ exports = scene(function() {
   scene.screen.onDown(function(){
     // Calculating criticalHit damage
     var criticalHit = randRangeI(100);
-    console.log(player.critChance)
     if(criticalHit <= player.critChance){
       var critDisplay = scene.addText('CRITICAL HIT!!!', {
         x: 150,
@@ -290,7 +294,7 @@ exports = scene(function() {
         neutralMonster.hpBar.setValue(neutralMonster.target.health/neutralMonster.bossHealth, 100);
       }
     }
-    effects.firework(extraEffect);
+    effects.firework(neutralMonster.target, {scale: 0.7});
     effects.shake(neutralMonster.target);
   });
 });

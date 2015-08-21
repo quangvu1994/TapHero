@@ -169,7 +169,7 @@ exports = {
             size: 28
           });
           if(!exist){
-            var internalDeath = GameUI.setUp(100, 820, 100, 100, 'resources/images/deathShadow.png', scene.ui);
+            var internalDeath = GameUI.setUp(110, 820, 100, 100, 'resources/images/deathShadow.png', scene.ui);
             internalDeath.registerListener('onDown', function(){
               var clock = scene.addInterval(function(){
                 monster.target.hurt(player.heroTapDamage);

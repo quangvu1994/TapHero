@@ -10,7 +10,7 @@ exports = {
     this.playerBank = 10000;
     this.levelGold = 5;
     this.critMulti = 10;
-    this.critChance = 5;
+    this.critChance = 3;
     this.heroTapDamage = Calculation.playerDPS(this.level);
 
     this.actor = scene.addPlayer({url: 'resources/images/player.png'}, {
@@ -39,7 +39,7 @@ exports = {
     this.monsterGold = Calculation.monsterGold(this.monsterHealth,stage);
     this.bossHealth = Calculation.bossHP(stage, this.monsterHealth);
     this.bossGold = Calculation.bossGold(this.monsterGold, stage);
-    this.monsterImages = ['resources/images/monster.png', 'resources/images/boss_fly.png', 'resources/images/char_hero.png'];
+    this.monsterImages = [['resources/monsterImages/boss', 'fly'], ['resources/monsterImages/monsterking', 'idle']];
     this.bossTime = false;
     this.target;
     this.displayHealth;

@@ -3,7 +3,7 @@ import scene;
 exports = {
   display: function(num, string, posX, posY, sizeNum, view){
     // Handling scientific notation in progress
-    if(num >= 1000){
+    if(num >= 1000 && num < 1000000){
       // Additing Text can be a function -> reduce the dry code
       var myText = scene.addText((num/1000).toFixed(1) + ' K' + string, {
         superview: view,
@@ -11,7 +11,7 @@ exports = {
         y: posY,
         size: sizeNum,
       });
-    }else if(num >= 1000000){
+    }else if(num >= 1000000 && num < 1000000000){
       var myText = scene.addText((num/1000000).toFixed(1) + ' M' + string, {
         superview: view,
         x: posX,
