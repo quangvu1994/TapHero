@@ -6,10 +6,11 @@ import .GameUI;
 
 exports = {
   playerBuilder: function(){
-    this.level = 24;
+    this.level = 49;
     this.playerBank = 10000;
     this.levelGold = 5;
     this.critMulti = 10;
+    this.critChance = 5;
     this.heroTapDamage = Calculation.playerDPS(this.level);
 
     this.actor = scene.addPlayer({url: 'resources/images/player.png'}, {
@@ -27,8 +28,10 @@ exports = {
     // Skills properties and displayer
     this.smokeBombAmount = 200;
     this.internalDeathAmount = 1000;
+    this.criticalStrikeAmount  = 2000;
     this.bombDisplay = DisplayText.display(this.smokeBombAmount, ' gold', 320, 170, 25, playerScrollView);
     this.internalDeathDisplay = DisplayText.display(this.internalDeathAmount, ' gold', 320, 270, 25, playerScrollView);
+    this.critStrikeDisplay = DisplayText.display(this.criticalStrikeAmount, ' gold', 320, 370, 25, playerScrollView);
   },
 
   monsterBuilder: function(stage){

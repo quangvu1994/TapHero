@@ -41,7 +41,7 @@ exports = scene(function() {
   var player = new Player.playerBuilder();
   //Heroes
   var dragon = new HeroSetUp.heroBuild(1, 10, 50, 'resources/images/littleDragon.png', [10, 450, 400], heroScrollView);
-  var angryKitty = new HeroSetUp.heroBuild(2, 100, 100, 'resources/images/angryKitty.png', [100, 100, 630], heroScrollView);
+  var angryKitty = new HeroSetUp.heroBuild(2, 100, 100, 'resources/images/angryKitty.png', [100, 100, 600], heroScrollView);
   // Heroes buttons
   var dragButton = GameUI.setUp(20, 20, BUTTON_WIDTH, BUTTON_HEIGHT, dragon.image, heroScrollView);
   var angryKittyButton = GameUI.setUp(20, 120, BUTTON_WIDTH, BUTTON_HEIGHT, angryKitty.image, heroScrollView);
@@ -59,8 +59,10 @@ exports = scene(function() {
   //Player's skill buttons
   var smokeBombButton = GameUI.setUp(10, 180, 50, 50, 'resources/images/smokeBomb.png', playerScrollView);
   var internalDeath = GameUI.setUp(10, 280, 50, 50, 'resources/images/deathShadow.png', playerScrollView);
+  var criticalStrike = GameUI.setUp(10, 380, 50, 50, 'resources/images/criticalStrike.png', playerScrollView);
   ButtonRegister.registerBombSkill(smokeBombButton, player, neutralMonster);
   ButtonRegister.registerInternalDeath(internalDeath, player, neutralMonster);
+  ButtonRegister.registerCriticalStrike(criticalStrike, player);
 
   // Setting up heroes
   HeroSetUp.heroRegister(dragButton, dragon, player, neutralMonster, [1,4,5,6]);
@@ -252,8 +254,8 @@ exports = scene(function() {
   scene.screen.onDown(function(){
     // Calculating criticalHit damage
     var criticalHit = randRangeI(100);
-    // 5% crit
-    if(criticalHit <= 5){
+    console.log(player.critChance)
+    if(criticalHit <= player.critChance){
       var critDisplay = scene.addText('CRITICAL HIT!!!', {
         x: 150,
         y: 200,

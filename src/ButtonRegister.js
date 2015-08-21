@@ -113,6 +113,7 @@ exports = {
               effects.explode(monster.target);
               SkillSetUp.playerSkillCooldown(this, 30);
             });
+            exist = true;
           }
         }else{
           var notEnough = scene.addText('Not Enough Gold', {
@@ -189,7 +190,76 @@ exports = {
               }, perSecond);
               SkillSetUp.playerSkillCooldown(this, 30);
             });
+            exist = true;
           };
+        }else{
+          var notEnough = scene.addText('Not Enough Gold', {
+            x: 120,
+            y: 250,
+            size: 40
+          });
+          scene.animate(notEnough)
+          .now({opacity: 1}, 400)
+          .then({opacity: 0}, 500);
+        }
+      }
+    });
+  },
+
+  registerCriticalStrike: function(button, player){
+    var exist = false;
+    var critChanceBonus = 12;
+    var duration = 10;
+    var miliseconds = 1000;
+    var count = 0;
+    var skillDescription = scene.addText('Increase critical chance', {
+      superview: playerScrollView,
+      x: 50,
+      y: 350,
+      size: 28
+    });
+    var unlockAt = scene.addText('Unlock at level 50', {
+      superview: playerScrollView,
+      x: 20,
+      y: 390,
+      size: 28
+    });
+    button.registerListener('onDown', function(){
+      if(player.level >= 50){
+        if(player.playerBank >= player.criticalStrikeAmount){
+          unlockAt.destroy();
+          player.playerBank -= player.criticalStrikeAmount;
+          player.totalGold.destroy();
+          player.goldDisplay.destroy();
+          player.totalGold = DisplayText.display(player.playerBank, ' gold', 320, 0, 25, playerScrollView);
+          player.goldDisplay = DisplayText.display(player.playerBank, ' ', 150, 130, 35, scene.ui);
+          player.criticalStrikeAmount += 100;
+          player.critStrikeDisplay.destroy();
+          player.critStrikeDisplay = DisplayText.display(player.criticalStrikeAmount, ' gold', 320, 370, 25, playerScrollView);
+          critChanceBonus += 3;
+          skillDescription.destroy();
+          skillDescription = scene.addText('Increase crit chance by ' + critChanceBonus + '%', {
+            superview: playerScrollView,
+            x: 80,
+            y: 370,
+            size: 28
+          });
+          if(!exist){
+            var critChance = GameUI.setUp(210, 820, 100, 100, 'resources/images/criticalStrike.png', scene.ui);
+            critChance.registerListener('onDown', function(){
+              player.critChance += critChanceBonus;
+              var clock = scene.addInterval(function(){
+                count += miliseconds;
+                if(count/1000 >= duration){
+                  player.critChance -= critChanceBonus;
+                  scene.removeInterval(clock);
+                  count = 0;
+                }
+              }, miliseconds)
+              SkillSetUp.playerSkillCooldown(this, 30);
+            });
+            exist = true;
+          }
         }else{
           var notEnough = scene.addText('Not Enough Gold', {
             x: 120,
