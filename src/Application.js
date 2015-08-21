@@ -15,19 +15,16 @@ var BUTTON_WIDTH = 80;
 var BUTTON_HEIGHT = 80;
 heroScrollView = null;
 playerScrollView = null;
+menuBar = null;
 
 exports = scene(function() {
   //Add background and others views
   var background = scene.addBackground ({url: 'resources/images/BA_BG.png'});
   var coinImage = scene.addImage({url: 'resources/images/coin.png'}, 180, 120, 100, 100);
-  var platform = scene.addImage({url: 'resources/images/platform.png'}, -150, 690, 1000, 500);
+  var platform = scene.addImage({url: 'resources/images/platform.png'}, -150, 650, 1000, 600);
   heroScrollView = GameUI.tabView();
-  scene.animate(heroScrollView)
-    .now({x: 1000}, 1);
-
   playerScrollView = GameUI.tabView();
-  scene.animate(playerScrollView)
-    .now({x: 1000}, 1);
+  menuBar = GameUI.menuBorder();
   var extraEffect = scene.addText(' ');
 
   // Stage info

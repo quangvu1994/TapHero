@@ -15,7 +15,7 @@ exports = {
     this.actor = scene.addPlayer({url: 'resources/images/player.png'}, {
       superview: scene.ui,
       x: scene.screen.width/2 - 30,
-      y: scene.screen.height - 400,
+      y: scene.screen.height - 410,
       zIndex: 1
     });
 

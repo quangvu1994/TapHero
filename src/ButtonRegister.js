@@ -12,12 +12,16 @@ exports = {
       if(!scrollViewType.visible){
         scene.animate(scrollViewType)
           .now({x: 0}, 1)
+        scene.animate(menuBar)
+          .now({x: 0}, 1)
         scene.animate(rmView1)
           .now({x: 1000}, 1)
         rmView1.visible = false;
         scrollViewType.visible = true;
       }else{
         scene.animate(scrollViewType)
+          .now({x: 1000}, 1)
+        scene.animate(menuBar)
           .now({x: 1000}, 1)
         scrollViewType.visible = false;
       }
